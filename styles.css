@@ -1,0 +1,32 @@
+/*.card {
+    /* border: 5px solid lightgray; 
+    border-radius: 25px;
+    padding: 2rem;
+    width: 18rem;
+    margin: 1rem;
+    background-color: white;
+    text-decoration: none;
+    color: black;
+
+}
+
+.list{
+    display: flex;
+    justify-content: center;
+    margin: 4rem;
+    background-color: grey;
+    
+    
+}
+.card:hover{
+    background-color: lightgrey;
+}*/
+.list {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    width: 18rem;
+  }
