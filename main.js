@@ -417,6 +417,8 @@
 
 // //main.js//main.js
 const { useState, useEffect } = React;
+// import { useForm } from 'react-hook-form';
+const { useForm } = ReactHookForm;
 
 const BASE_URL = "http://localhost:9000";
 
@@ -461,6 +463,20 @@ const teamAPI = {
   list() {
     return fetch(url).then(checkStatus).then(parseJSON);
   },
+  find(id) {
+    return fetch(`${url}/${id}`).then(checkStatus).then(parseJSON);
+  },
+  insert(team) {
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(team),
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  },
 };
 
 function TeamList() {
@@ -490,7 +506,15 @@ function TeamList() {
       {errorMessage && <div className="alert alert-danger"> {errorMessage}</div>}
       {teams?.map((team) => (
         <div className="card p-4" key={team.name}>
-          <strong>{team.name}</strong>
+          <div className="container d-flex justify-content-between ps-0">
+            <strong>{team.name}</strong>
+            <div>
+              <NavLink className="btn btn-outline-secondary" to={`/edit/${team.id}`}>
+                Edit
+              </NavLink>
+            </div>
+          </div>
+
           <div>{team.division}</div>
         </div>
       ))}
@@ -519,6 +543,7 @@ const {
   useParams,
   useLocation,
   useNavigation,
+  useNavigate,
 } = window.ReactRouterDOM;
 
 function HomePage() {
@@ -537,7 +562,7 @@ function TeamsPage() {
     <>
       <div className="container d-flex justify-content-between mb-3">
         <h2>Teams</h2>
-        <NavLink className="btn btn-outline-primary mt-1" to="/teams/create">
+        <NavLink className="btn btn-outline-primary mt-2" to="/teams/create">
           Add Team
         </NavLink>
       </div>
@@ -545,6 +570,90 @@ function TeamsPage() {
     </>
   );
 }
+
+function TeamEditPage() {
+  const { id } = useParams();
+  const [team, setTeam] = useState(undefined);
+
+  async function loadTeam() {
+    let data = await teamAPI.find(id);
+    setTeam(data);
+  }
+
+  useEffect(() => {
+    loadTeam();
+  }, [id]);
+
+  return (
+    <div>
+      <header className=" fs-4"> {team?.name}</header>
+      <hr />
+      <TeamForm team={team} />
+    </div>
+  );
+}
+
+function TeamForm({ team }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(undefined)
+  const navigate = useNavigate();
+
+  async function save(team) {
+    try{
+      setBusy(true);
+      let newTeam = await teamAPI.insert(team);
+      navigate("/teams")
+
+    } catch(error){
+      setError(error.message)
+    }
+    finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+    {busy && <p>Saving...</p>}
+    {error && <div className="alert alert-danger">{error}</div>}
+    <div className="mb3">
+      <form className="w-25" onSubmit={handleSubmit(save)}>
+        <label className=" form-label" htmlFor="teamName">
+          Team Name
+        </label>
+        <input
+          type="text"
+          id="teamName"
+          className={`form-control ${errors.title && "is-invalid"}`}
+          {...register("name", { required: "Team Name is required" })}
+          
+          />
+        <p className="invalid-feedback">{errors.title?.message}</p>
+        <label className=" form-label" htmlFor="division">
+          Division
+        </label>
+        <input type="text" id="division" className={`form-control ${errors.title && "is-invalid"}`}
+          {...register("division", { required: "Division is required" })}  />
+        <div className="d-flex mt-3 gap-2">
+          <button type="submit" className="btn btn-primary">
+            Send
+          </button>
+          <NavLink className="btn btn-outline-primary" to="/teams">
+            Cancel
+          </NavLink>
+        </div>
+      </form>
+    </div>
+</>
+  );
+}
+
 function Players() {
   return <h2>Players</h2>;
 }
@@ -552,7 +661,7 @@ function Players() {
 function CreateTeamPage() {
   return (
     <>
-      <h2>Create Team Page</h2>
+      <TeamForm />
     </>
   );
 }
@@ -599,6 +708,7 @@ function App() {
             <Route path="teams" element={<TeamsPage />} />
             <Route path="players" element={<Players />} />
             <Route path="/teams/create" element={<CreateTeamPage />} />
+            <Route path="edit/:id" element={<TeamEditPage />} />
           </Routes>
         </div>
       </div>

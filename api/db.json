@@ -154,6 +154,23 @@
       "name": "Cincinnati Royals",
       "division": "MidWest",
       "id": 31
+    },
+    {
+      "name": "NewTeam",
+      "id": 32
+    },
+    {
+      "name": "NewTeam02",
+      "id": 33
+    },
+    {
+      "name": "SouthWest",
+      "id": 34
+    },
+    {
+      "name": "NewTeam04",
+      "division": "Northwest",
+      "id": 35
     }
   ]
 }

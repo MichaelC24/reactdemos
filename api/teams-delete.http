@@ -1,2 +1,2 @@
-DELETE  http://localhost:9000/teams/31
+DELETE  http://localhost:9000/teams/35
 # GET https://swapi.dev/api/people/
